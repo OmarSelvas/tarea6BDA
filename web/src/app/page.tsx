@@ -3,39 +3,39 @@ import Link from 'next/link';
 export default function Dashboard() {
   const reports = [
     {
-      href: '/reports/course',
-      title: 'Rendimiento Académico',
-      desc: 'Análisis de desempeño por curso, profesor y período.',
+      href: '/reports/categories',
+      title: 'Ventas por Categoría',
+      desc: 'Análisis de rendimiento de ventas por categoría de producto.',
       icon: '📊',
       color: 'blue',
     },
     {
-      href: '/reports/students',
-      title: 'Estudiantes en Riesgo',
-      desc: 'Alerta temprana de reprobación por faltas o bajas notas.',
+      href: '/reports/customers',
+      title: 'Clientes en Riesgo',
+      desc: 'Identificación de clientes inactivos o con alto riesgo de abandono.',
       icon: '⚠️',
       color: 'red',
       highlight: true,
     },
     {
-      href: '/reports/ranking',
-      title: 'Ranking Estudiantil',
-      desc: 'Top estudiantes organizados por programa académico.',
+      href: '/reports/products',
+      title: 'Ranking de Productos',
+      desc: 'Top productos por ventas e ingresos con comparación por categoría.',
       icon: '🏆',
       color: 'yellow',
     },
     {
-      href: '/reports/attendance',
-      title: 'Resumen de Asistencia',
-      desc: 'Análisis de asistencia por estudiante y curso.',
-      icon: '📅',
+      href: '/reports/inventory',
+      title: 'Estado de Inventario',
+      desc: 'Monitoreo de stock y alertas de reorden automáticas.',
+      icon: '📦',
       color: 'green',
     },
     {
-      href: '/reports/teachers',
-      title: 'Desempeño de Profesores',
-      desc: 'Evaluación de rendimiento docente según resultados.',
-      icon: '👨‍🏫',
+      href: '/reports/vip',
+      title: 'Clientes VIP',
+      desc: 'Segmentación y análisis de mejores clientes por valor.',
+      icon: '💎',
       color: 'purple',
     },
   ];
@@ -45,10 +45,10 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-12 text-center">
           <h1 className="text-5xl font-bold text-gray-800 mb-4">
-            📚 School Analytics Dashboard
+            🛒 E-Commerce Analytics Dashboard
           </h1>
           <p className="text-xl text-gray-600">
-            Sistema de reportes académicos y seguimiento estudiantil
+            Sistema de reportes de ventas, inventario y análisis de clientes
           </p>
         </div>
 
@@ -59,7 +59,7 @@ export default function Dashboard() {
         </div>
 
         <footer className="mt-16 text-center text-gray-500 text-sm">
-          <p>Desarrollado con Next.js 16 + PostgreSQL + Docker</p>
+          <p>Desarrollado con Next.js 15 + PostgreSQL + Docker</p>
         </footer>
       </div>
     </main>

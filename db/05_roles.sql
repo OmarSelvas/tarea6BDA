@@ -6,7 +6,7 @@ BEGIN
 END
 $$;
 
-GRANT CONNECT ON DATABASE "school_db" TO app_user;
+GRANT CONNECT ON DATABASE "tiendita_db" TO app_user;
 GRANT USAGE ON SCHEMA public TO app_user;
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM app_user;
 GRANT SELECT ON v_course_performance TO app_user;
