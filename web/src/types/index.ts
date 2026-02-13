@@ -1,82 +1,84 @@
-export interface RendimientoAcademico {
-  codigo_curso: string;
-  nombre_curso: string;
-  creditos: number;
-  nombre_profesor: string;
-  periodo: string;
-  total_estudiantes: number;
-  promedio_final: number;
-  tasa_aprobacion: number;
-  reprobados: number;
-  estudiantes_excelencia: number;
-  promedio_parcial1: number;
-  promedio_parcial2: number;
-  variacion_parciales: number;
+export interface VentasPorCategoria {
+  categoria_id: number;
+  categoria: string;
+  descripcion_categoria: string | null;
+  total_productos: number;
+  ordenes_con_categoria: number;
+  unidades_vendidas: number;
+  total_vendido: number;
+  precio_promedio: number;
+  producto_mas_caro: number;
+  producto_mas_barato: number;
+  ticket_promedio: number;
+  clasificacion_ventas: 'Top Seller' | 'Alto Volumen' | 'Medio' | 'Bajo Volumen';
 }
 
-export interface EstudianteRiesgo {
-  estudiante_id: number;
-  nombre_estudiante: string;
-  email_estudiante: string;
-  programa: string;
-  anio_ingreso: number;
-  promedio_final: number;
-  porcentaje_asistencia: number;
-  materias_cursadas: number;
-  materias_reprobadas: number;
-  calificacion_minima: number;
-  calificacion_maxima: number;
-  nivel_riesgo: string;
-  brecha_excelencia: number;
+export interface ClienteRiesgo {
+  usuario_id: number;
+  nombre: string;
+  email: string;
+  total_ordenes: number;
+  ordenes_canceladas: number;
+  ordenes_completadas: number;
+  total_gastado: number;
+  dias_sin_comprar: number;
+  tasa_cancelacion: number;
+  nivel_riesgo: 'Riesgo Crítico' | 'Riesgo Alto' | 'Riesgo Moderado' | 'Cliente Activo';
+  valor_potencial_perdido: number;
 }
 
-export interface StudentRanking {
-  estudiante_id: number;
-  nombre_estudiante: string;
-  email_estudiante: string;
-  programa: string;
-  anio_ingreso: number;
-  promedio_periodo: number;
-  materias_cursadas: number;
-  nota_minima: number;
-  nota_maxima: number;
-  posicion_programa: number;
-  posicion_general: number;
-  clasificacion_rendimiento: string;
-  diferencia_vs_promedio_programa: number;
+export interface RankingProducto {
+  producto_id: number;
+  codigo: string;
+  nombre: string;
+  categoria: string;
+  precio: number;
+  stock: number;
+  unidades_vendidas: number;
+  ingresos_totales: number;
+  ordenes_con_producto: number;
+  ranking_global: number;
+  ranking_categoria: number;
+  promedio_categoria: number;
+  diferencia_vs_promedio: number;
+  clasificacion_producto: 'Bestseller' | 'Alto Rendimiento' | 'Rendimiento Medio' | 'Bajo Rendimiento' | 'Sin Ventas';
 }
 
-export interface ResumenAsistencia {
-  estudiante_id: number;
-  nombre_estudiante: string;
-  email_estudiante: string;
-  programa: string;
-  codigo_curso: string;
-  nombre_curso: string;
-  periodo: string;
-  total_clases: number;
-  clases_asistidas: number;
-  clases_faltadas: number;
-  porcentaje_asistencia: number;
-  asistencia_segura: number;
-  estado_asistencia: string;
+export interface EstadoInventario {
+  producto_id: number;
+  codigo: string;
+  nombre: string;
+  categoria: string;
+  precio: number;
+  stock_actual: number;
+  unidades_vendidas_30dias: number;
+  ordenes_30dias: number;
+  velocidad_venta_diaria: number;
+  dias_inventario_restante: number;
+  estado_stock: 'Agotado' | 'Crítico - Reorden Urgente' | 'Bajo - Reorden Próximo' | 'Normal' | 'Sobrestock';
+  punto_reorden_sugerido: number;
 }
 
-export interface DesempenoProfesores {
-  profesor_id: number;
-  nombre_profesor: string;
-  grupos_impartidos: number;
-  total_estudiantes: number;
-  promedio_general: number;
-  tasa_aprobacion: number;
-  estudiantes_destacados: number;
-  grupo_menor_rendimiento: number;
-  grupo_mayor_rendimiento: number;
-  ranking_profesores: number;
-  evaluacion_desempeno: string;
+export interface UsuarioVIP {
+  usuario_id: number;
+  nombre: string;
+  email: string;
+  total_ordenes: number;
+  ordenes_completadas: number;
+  ordenes_canceladas: number;
+  total_gastado: number;
+  ticket_promedio: number;
+  ultima_compra: string;
+  dias_como_cliente: number;
+  ranking_por_gasto: number;
+  decil_gasto: number;
+  frecuencia_mensual: number;
+  segmento_cliente: 'VIP Platino' | 'VIP Oro' | 'VIP Plata' | 'Cliente Regular';
+  ltv_proyectado_anual: number;
 }
 
 export interface PaginatedResponse<T> {
+  success: boolean;
   data: T[];
   pagination: {
     page: number;
@@ -84,4 +86,10 @@ export interface PaginatedResponse<T> {
     total: number;
     totalPages: number;
   };
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T[];
+  error?: string;
 }

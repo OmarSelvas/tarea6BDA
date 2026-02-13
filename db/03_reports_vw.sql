@@ -1,217 +1,263 @@
--- VISTA 1: Rendimiento Académico por Curso
-CREATE OR REPLACE VIEW v_rendimiento_academico AS
+-- VISTA 1: Análisis de Ventas por Categoria
+CREATE OR REPLACE VIEW v_ventas_por_categoria AS
 SELECT 
-    c.code AS codigo_curso,
-    c.name AS nombre_curso,
-    c.credits AS creditos,
-    t.name AS nombre_profesor,
-    g.term AS periodo,
-    COUNT(DISTINCT e.student_id) AS total_estudiantes,
-    ROUND(AVG(gr.final), 2) AS promedio_final,
+    c.id AS categoria_id,
+    c.nombre AS categoria,
+    c.descripcion AS descripcion_categoria,
+    COUNT(DISTINCT p.id) AS total_productos,
+    COUNT(DISTINCT od.orden_id) AS ordenes_con_categoria,
+    SUM(od.cantidad) AS unidades_vendidas,
+    ROUND(SUM(od.subtotal), 2) AS total_vendido,
+    ROUND(AVG(p.precio), 2) AS precio_promedio,
+    MAX(p.precio) AS producto_mas_caro,
+    MIN(p.precio) AS producto_mas_barato,
     ROUND(
-        (COUNT(CASE WHEN gr.final >= 70 THEN 1 END)::DECIMAL / 
-         NULLIF(COUNT(gr.final), 0)) * 100, 
+        SUM(od.subtotal) / NULLIF(COUNT(DISTINCT od.orden_id), 0),
         2
-    ) AS tasa_aprobacion,
-    COUNT(CASE WHEN gr.final < 70 THEN 1 END) AS reprobados,
-    COUNT(CASE WHEN gr.final >= 90 THEN 1 END) AS estudiantes_excelencia,
-    ROUND(AVG(gr.partial1), 2) AS promedio_parcial1,
-    ROUND(AVG(gr.partial2), 2) AS promedio_parcial2,
-    ROUND(AVG(gr.partial2) - AVG(gr.partial1), 2) AS variacion_parciales
-FROM courses c
-JOIN groups g ON c.id = g.course_id
-JOIN teachers t ON g.teacher_id = t.id
-LEFT JOIN enrollments e ON g.id = e.group_id
-LEFT JOIN grades gr ON e.id = gr.enrollment_id
-GROUP BY c.code, c.name, c.credits, t.name, g.term
-ORDER BY tasa_aprobacion ASC, promedio_final DESC;
-CREATE OR REPLACE VIEW v_estudiantes_riesgo AS
-WITH asistencia_estudiante AS (
+    ) AS ticket_promedio,
+    CASE 
+        WHEN SUM(od.subtotal) >= 5000 THEN 'Top Seller'
+        WHEN SUM(od.subtotal) >= 2000 THEN 'Alto Volumen'
+        WHEN SUM(od.subtotal) >= 500 THEN 'Medio'
+        ELSE 'Bajo Volumen'
+    END AS clasificacion_ventas
+FROM categorias c
+LEFT JOIN productos p ON c.id = p.categoria_id
+LEFT JOIN orden_detalles od ON p.id = od.producto_id
+GROUP BY c.id, c.nombre, c.descripcion
+HAVING COALESCE(SUM(od.subtotal), 0) > 0
+ORDER BY total_vendido DESC NULLS LAST;
+
+COMMENT ON VIEW v_ventas_por_categoria IS 
+'Análisis de ventas por categoría con agregaciones y clasificación';
+
+-- VISTA 2: Clientes en Riesgo de Abandono 
+CREATE OR REPLACE VIEW v_clientes_riesgo AS
+WITH actividad_cliente AS (
     SELECT 
-        e.student_id,
-        COUNT(*) AS total_clases,
-        SUM(CASE WHEN a.present THEN 1 ELSE 0 END) AS clases_asistidas,
-        ROUND(
-            (SUM(CASE WHEN a.present THEN 1 ELSE 0 END)::DECIMAL / 
-             NULLIF(COUNT(*), 0)) * 100, 
-            2
-        ) AS porcentaje_asistencia
-    FROM enrollments e
-    JOIN attendance a ON e.id = a.enrollment_id
-    GROUP BY e.student_id
+        u.id AS usuario_id,
+        COUNT(o.id) AS total_ordenes,
+        SUM(CASE WHEN o.status = 'cancelado' THEN 1 ELSE 0 END) AS ordenes_canceladas,
+        SUM(CASE WHEN o.status = 'entregado' THEN 1 ELSE 0 END) AS ordenes_completadas,
+        SUM(o.total) AS total_gastado,
+        MAX(o.created_at) AS ultima_compra,
+        CURRENT_DATE - MAX(o.created_at)::DATE AS dias_sin_comprar
+    FROM usuarios u
+    LEFT JOIN ordenes o ON u.id = o.usuario_id
+    GROUP BY u.id
 ),
-rendimiento_estudiante AS (
+metricas_cliente AS (
     SELECT 
-        e.student_id,
-        COUNT(DISTINCT e.group_id) AS materias_cursadas,
-        COUNT(CASE WHEN gr.final < 70 THEN 1 END) AS materias_reprobadas,
-        ROUND(AVG(gr.final), 2) AS promedio_final,
-        MIN(gr.final) AS calificacion_minima,
-        MAX(gr.final) AS calificacion_maxima
-    FROM enrollments e
-    JOIN grades gr ON e.id = gr.enrollment_id
-    GROUP BY e.student_id
-)
-SELECT 
-    s.id AS estudiante_id,
-    s.name AS nombre_estudiante,
-    s.email AS email_estudiante,
-    s.program AS programa,
-    s.enrollment_year AS anio_ingreso,
-    COALESCE(r.promedio_final, 0) AS promedio_final,
-    COALESCE(a.porcentaje_asistencia, 0) AS porcentaje_asistencia,
-    COALESCE(r.materias_cursadas, 0) AS materias_cursadas,
-    COALESCE(r.materias_reprobadas, 0) AS materias_reprobadas,
-    r.calificacion_minima,
-    r.calificacion_maxima,
-    CASE 
-        WHEN r.promedio_final < 60 OR a.porcentaje_asistencia < 50 THEN 'Crítico - Riesgo Alto'
-        WHEN r.promedio_final < 70 OR a.porcentaje_asistencia < 65 THEN 'Alerta - Riesgo Medio'
-        WHEN r.promedio_final < 80 OR a.porcentaje_asistencia < 75 THEN 'Prevención - Riesgo Bajo'
-        ELSE 'Estable'
-    END AS nivel_riesgo,
-    ROUND(90 - COALESCE(r.promedio_final, 0), 2) AS brecha_excelencia
-FROM students s
-LEFT JOIN rendimiento_estudiante r ON s.id = r.student_id
-LEFT JOIN asistencia_estudiante a ON s.id = a.student_id
-WHERE r.promedio_final < 80 OR a.porcentaje_asistencia < 75
-GROUP BY s.id, s.name, s.email, s.program, s.enrollment_year, 
-         r.promedio_final, a.porcentaje_asistencia, r.materias_cursadas, 
-         r.materias_reprobadas, r.calificacion_minima, r.calificacion_maxima
-HAVING COALESCE(r.promedio_final, 0) < 80 OR COALESCE(a.porcentaje_asistencia, 0) < 75
-ORDER BY nivel_riesgo, promedio_final ASC;
-
--- VISTA 3: Ranking Estudiantes por Programa 
-CREATE OR REPLACE VIEW v_ranking_estudiantes AS
-WITH promedios_estudiante AS (
-    SELECT 
-        s.id AS estudiante_id,
-        s.name AS nombre_estudiante,
-        s.email AS email_estudiante,
-        s.program AS programa,
-        s.enrollment_year AS anio_ingreso,
-        COUNT(DISTINCT e.group_id) AS materias_cursadas,
-        ROUND(AVG(gr.final), 2) AS promedio_periodo,
-        MIN(gr.final) AS nota_minima,
-        MAX(gr.final) AS nota_maxima
-    FROM students s
-    JOIN enrollments e ON s.id = e.student_id
-    JOIN grades gr ON e.id = gr.enrollment_id
-    GROUP BY s.id, s.name, s.email, s.program, s.enrollment_year
-)
-SELECT 
-    estudiante_id,
-    nombre_estudiante,
-    email_estudiante,
-    programa,
-    anio_ingreso,
-    promedio_periodo,
-    materias_cursadas,
-    nota_minima,
-    nota_maxima,
-    RANK() OVER (
-        PARTITION BY programa 
-        ORDER BY promedio_periodo DESC
-    ) AS posicion_programa,
-    RANK() OVER (
-        ORDER BY promedio_periodo DESC
-    ) AS posicion_general,
-    CASE 
-        WHEN promedio_periodo >= 95 THEN 'Excelencia'
-        WHEN promedio_periodo >= 85 THEN 'Sobresaliente'
-        WHEN promedio_periodo >= 75 THEN 'Bueno'
-        WHEN promedio_periodo >= 70 THEN 'Aprobado'
-        ELSE 'Reprobado'
-    END AS clasificacion_rendimiento,
-    ROUND(
-        promedio_periodo - AVG(promedio_periodo) OVER (PARTITION BY programa),
-        2
-    ) AS diferencia_vs_promedio_programa
-FROM promedios_estudiante
-ORDER BY programa, posicion_programa;
-
--- VISTA 4: Resumen de Asistencia por Estudiante y Curso
-CREATE OR REPLACE VIEW v_resumen_asistencia AS
-SELECT 
-    s.id AS estudiante_id,
-    s.name AS nombre_estudiante,
-    s.email AS email_estudiante,
-    s.program AS programa,
-    c.code AS codigo_curso,
-    c.name AS nombre_curso,
-    g.term AS periodo,
-    COUNT(*) AS total_clases,
-    SUM(CASE WHEN a.present THEN 1 ELSE 0 END) AS clases_asistidas,
-    COUNT(*) - SUM(CASE WHEN a.present THEN 1 ELSE 0 END) AS clases_faltadas,
-    ROUND(
-        (SUM(CASE WHEN a.present THEN 1 ELSE 0 END)::DECIMAL / 
-         NULLIF(COUNT(*), 0)) * 100,
-        2
-    ) AS porcentaje_asistencia,
-    COALESCE(
+        usuario_id,
+        total_ordenes,
+        ordenes_canceladas,
+        ordenes_completadas,
+        total_gastado,
+        ultima_compra,
+        dias_sin_comprar,
         ROUND(
-            (SUM(CASE WHEN a.present THEN 1 ELSE 0 END)::DECIMAL / 
-             NULLIF(COUNT(*), 0)) * 100,
+            (ordenes_canceladas::DECIMAL / NULLIF(total_ordenes, 0)) * 100,
             2
-        ),
-        0
-    ) AS asistencia_segura,
-    CASE 
-        WHEN (SUM(CASE WHEN a.present THEN 1 ELSE 0 END)::DECIMAL / NULLIF(COUNT(*), 0)) * 100 >= 90 THEN 'Excelente'
-        WHEN (SUM(CASE WHEN a.present THEN 1 ELSE 0 END)::DECIMAL / NULLIF(COUNT(*), 0)) * 100 >= 75 THEN 'Buena'
-        WHEN (SUM(CASE WHEN a.present THEN 1 ELSE 0 END)::DECIMAL / NULLIF(COUNT(*), 0)) * 100 >= 60 THEN 'Regular'
-        ELSE 'Crítica'
-    END AS estado_asistencia
-FROM students s
-JOIN enrollments e ON s.id = e.student_id
-JOIN groups g ON e.group_id = g.id
-JOIN courses c ON g.course_id = c.id
-JOIN attendance a ON e.id = a.enrollment_id
-GROUP BY s.id, s.name, s.email, s.program, c.code, c.name, g.term
-HAVING (SUM(CASE WHEN a.present THEN 1 ELSE 0 END)::DECIMAL / NULLIF(COUNT(*), 0)) * 100 < 100
-ORDER BY porcentaje_asistencia ASC, nombre_estudiante;
-
--- VISTA 5: Desempeño de Profesores
-CREATE OR REPLACE VIEW v_desempeno_profesores AS
-WITH stats_por_grupo AS (
-    SELECT 
-        t.id AS profesor_id,
-        t.name AS nombre_profesor,
-        g.id AS grupo_id,
-        c.name AS nombre_curso,
-        g.term AS periodo,
-        COUNT(DISTINCT e.student_id) AS estudiantes_grupo,
-        ROUND(AVG(gr.final), 2) AS promedio_grupo,
-        COUNT(CASE WHEN gr.final >= 70 THEN 1 END) AS aprobados_grupo,
-        COUNT(CASE WHEN gr.final >= 90 THEN 1 END) AS destacados_grupo
-    FROM teachers t
-    JOIN groups g ON t.id = g.teacher_id
-    JOIN courses c ON g.course_id = c.id
-    LEFT JOIN enrollments e ON g.id = e.group_id
-    LEFT JOIN grades gr ON e.id = gr.enrollment_id
-    GROUP BY t.id, t.name, g.id, c.name, g.term
+        ) AS tasa_cancelacion
+    FROM actividad_cliente
 )
 SELECT 
-    profesor_id,
-    nombre_profesor,
-    COUNT(DISTINCT grupo_id) AS grupos_impartidos,
-    SUM(estudiantes_grupo) AS total_estudiantes,
-    ROUND(AVG(promedio_grupo), 2) AS promedio_general,
-    ROUND(
-        (SUM(aprobados_grupo)::DECIMAL / NULLIF(SUM(estudiantes_grupo), 0)) * 100,
-        2
-    ) AS tasa_aprobacion,
-    SUM(destacados_grupo) AS estudiantes_destacados,
-    MIN(promedio_grupo) AS grupo_menor_rendimiento,
-    MAX(promedio_grupo) AS grupo_mayor_rendimiento,
-    RANK() OVER (ORDER BY AVG(promedio_grupo) DESC) AS ranking_profesores,
+    u.id AS usuario_id,
+    u.nombre,
+    u.email,
+    COALESCE(m.total_ordenes, 0) AS total_ordenes,
+    COALESCE(m.ordenes_canceladas, 0) AS ordenes_canceladas,
+    COALESCE(m.ordenes_completadas, 0) AS ordenes_completadas,
+    COALESCE(m.total_gastado, 0) AS total_gastado,
+    COALESCE(m.dias_sin_comprar, 9999) AS dias_sin_comprar,
+    COALESCE(m.tasa_cancelacion, 0) AS tasa_cancelacion,
     CASE 
-        WHEN AVG(promedio_grupo) >= 85 THEN 'Destacado'
-        WHEN AVG(promedio_grupo) >= 75 THEN 'Competente'
-        WHEN AVG(promedio_grupo) >= 70 THEN 'Aceptable'
-        ELSE 'Requiere Mejora'
-    END AS evaluacion_desempeno
-FROM stats_por_grupo
-GROUP BY profesor_id, nombre_profesor
-HAVING COUNT(DISTINCT grupo_id) > 0
-ORDER BY promedio_general DESC, tasa_aprobacion DESC;
+        WHEN m.dias_sin_comprar > 180 OR m.tasa_cancelacion > 50 THEN 'Riesgo Crítico'
+        WHEN m.dias_sin_comprar > 90 OR m.tasa_cancelacion > 30 THEN 'Riesgo Alto'
+        WHEN m.dias_sin_comprar > 30 OR m.tasa_cancelacion > 15 THEN 'Riesgo Moderado'
+        ELSE 'Cliente Activo'
+    END AS nivel_riesgo,
+    ROUND(
+        COALESCE(m.total_gastado, 0) / NULLIF(COALESCE(m.total_ordenes, 1), 0) * 
+        GREATEST(m.dias_sin_comprar / 30, 1),
+        2
+    ) AS valor_potencial_perdido
+FROM usuarios u
+LEFT JOIN metricas_cliente m ON u.id = m.usuario_id
+WHERE m.dias_sin_comprar > 30 OR m.ordenes_canceladas > 1
+GROUP BY u.id, u.nombre, u.email, m.total_ordenes, m.ordenes_canceladas, 
+         m.ordenes_completadas, m.total_gastado, m.dias_sin_comprar, m.tasa_cancelacion
+HAVING COALESCE(m.dias_sin_comprar, 9999) > 30 OR COALESCE(m.ordenes_canceladas, 0) > 1
+ORDER BY nivel_riesgo, dias_sin_comprar DESC;
+
+COMMENT ON VIEW v_clientes_riesgo IS 
+'Clientes en riesgo de abandono usando CTE y clasificación por comportamiento';
+
+-- VISTA 3: Ranking de Productos 
+CREATE OR REPLACE VIEW v_ranking_productos AS
+WITH ventas_producto AS (
+    SELECT 
+        p.id AS producto_id,
+        p.codigo,
+        p.nombre,
+        p.precio,
+        p.stock,
+        c.nombre AS categoria,
+        c.id AS categoria_id,
+        COALESCE(SUM(od.cantidad), 0) AS unidades_vendidas,
+        COALESCE(SUM(od.subtotal), 0) AS ingresos_totales,
+        COUNT(DISTINCT od.orden_id) AS ordenes_con_producto
+    FROM productos p
+    JOIN categorias c ON p.categoria_id = c.id
+    LEFT JOIN orden_detalles od ON p.id = od.producto_id
+    GROUP BY p.id, p.codigo, p.nombre, p.precio, p.stock, c.nombre, c.id
+)
+SELECT 
+    producto_id,
+    codigo,
+    nombre,
+    categoria,
+    precio,
+    stock,
+    unidades_vendidas,
+    ROUND(ingresos_totales, 2) AS ingresos_totales,
+    ordenes_con_producto,
+    RANK() OVER (
+        ORDER BY ingresos_totales DESC
+    ) AS ranking_global,
+    RANK() OVER (
+        PARTITION BY categoria_id 
+        ORDER BY ingresos_totales DESC
+    ) AS ranking_categoria,
+    ROUND(
+        AVG(ingresos_totales) OVER (PARTITION BY categoria_id),
+        2
+    ) AS promedio_categoria,
+    ROUND(
+        ingresos_totales - AVG(ingresos_totales) OVER (PARTITION BY categoria_id),
+        2
+    ) AS diferencia_vs_promedio,
+    CASE 
+        WHEN ingresos_totales >= 5000 THEN 'Bestseller'
+        WHEN ingresos_totales >= 2000 THEN 'Alto Rendimiento'
+        WHEN ingresos_totales >= 500 THEN 'Rendimiento Medio'
+        WHEN ingresos_totales > 0 THEN 'Bajo Rendimiento'
+        ELSE 'Sin Ventas'
+    END AS clasificacion_producto
+FROM ventas_producto
+ORDER BY ranking_global;
+
+COMMENT ON VIEW v_ranking_productos IS 
+'Ranking de productos con window functions para comparación global y por categoría';
+
+-- VISTA 4: Estado de Inventario y Reorden
+
+CREATE OR REPLACE VIEW v_estado_inventario AS
+WITH ventas_recientes AS (
+    SELECT 
+        od.producto_id,
+        COUNT(DISTINCT od.orden_id) AS ordenes_30dias,
+        SUM(od.cantidad) AS unidades_vendidas_30dias,
+        ROUND(AVG(od.cantidad), 2) AS promedio_por_orden
+    FROM orden_detalles od
+    JOIN ordenes o ON od.orden_id = o.id
+    WHERE o.created_at >= CURRENT_DATE - INTERVAL '30 days'
+    GROUP BY od.producto_id
+)
+SELECT 
+    p.id AS producto_id,
+    p.codigo,
+    p.nombre,
+    c.nombre AS categoria,
+    p.precio,
+    p.stock AS stock_actual,
+    COALESCE(vr.unidades_vendidas_30dias, 0) AS unidades_vendidas_30dias,
+    COALESCE(vr.ordenes_30dias, 0) AS ordenes_30dias,
+    ROUND(
+        COALESCE(vr.unidades_vendidas_30dias, 0) / 30.0,
+        2
+    ) AS velocidad_venta_diaria,
+    CASE 
+        WHEN COALESCE(vr.unidades_vendidas_30dias, 0) > 0 THEN
+            ROUND(p.stock / (vr.unidades_vendidas_30dias / 30.0), 0)
+        ELSE 9999
+    END AS dias_inventario_restante,
+    CASE 
+        WHEN p.stock = 0 THEN 'Agotado'
+        WHEN p.stock <= 10 THEN 'Crítico - Reorden Urgente'
+        WHEN p.stock <= 30 THEN 'Bajo - Reorden Próximo'
+        WHEN p.stock <= 100 THEN 'Normal'
+        ELSE 'Sobrestock'
+    END AS estado_stock,
+    COALESCE(
+        CEILING((vr.unidades_vendidas_30dias / 30.0) * 14),
+        10
+    ) AS punto_reorden_sugerido
+FROM productos p
+JOIN categorias c ON p.categoria_id = c.id
+LEFT JOIN ventas_recientes vr ON p.id = vr.producto_id
+WHERE p.activo = TRUE
+GROUP BY p.id, p.codigo, p.nombre, c.nombre, p.precio, p.stock, 
+         vr.unidades_vendidas_30dias, vr.ordenes_30dias
+HAVING p.stock <= 50 OR COALESCE(vr.unidades_vendidas_30dias, 0) = 0
+ORDER BY estado_stock, stock_actual ASC;
+
+COMMENT ON VIEW v_estado_inventario IS 
+'Monitoreo de inventario con alertas de reorden y proyección de días restantes';
+
+-- VISTA 5: Performance de Usuarios VIP 
+CREATE OR REPLACE VIEW v_usuarios_vip AS
+WITH metricas_usuario AS (
+    SELECT 
+        u.id AS usuario_id,
+        u.nombre,
+        u.email,
+        COUNT(DISTINCT o.id) AS total_ordenes,
+        SUM(CASE WHEN o.status = 'entregado' THEN 1 ELSE 0 END) AS ordenes_completadas,
+        SUM(CASE WHEN o.status = 'cancelado' THEN 1 ELSE 0 END) AS ordenes_canceladas,
+        SUM(o.total) AS total_gastado,
+        ROUND(AVG(o.total), 2) AS ticket_promedio,
+        MAX(o.created_at) AS ultima_compra,
+        MIN(o.created_at) AS primera_compra,
+        CURRENT_DATE - MIN(o.created_at)::DATE AS dias_como_cliente
+    FROM usuarios u
+    JOIN ordenes o ON u.id = o.usuario_id
+    GROUP BY u.id, u.nombre, u.email
+)
+SELECT 
+    usuario_id,
+    nombre,
+    email,
+    total_ordenes,
+    ordenes_completadas,
+    ordenes_canceladas,
+    ROUND(total_gastado, 2) AS total_gastado,
+    ticket_promedio,
+    ultima_compra,
+    dias_como_cliente,
+    RANK() OVER (ORDER BY total_gastado DESC) AS ranking_por_gasto,
+    NTILE(10) OVER (ORDER BY total_gastado DESC) AS decil_gasto,
+    ROUND(
+        (ordenes_completadas::DECIMAL / NULLIF(dias_como_cliente / 30.0, 0)),
+        2
+    ) AS frecuencia_mensual,
+    CASE 
+        WHEN total_gastado >= 2000 AND ordenes_completadas >= 5 THEN 'VIP Platino'
+        WHEN total_gastado >= 1000 AND ordenes_completadas >= 3 THEN 'VIP Oro'
+        WHEN total_gastado >= 500 OR ordenes_completadas >= 2 THEN 'VIP Plata'
+        ELSE 'Cliente Regular'
+    END AS segmento_cliente,
+    ROUND(
+        (total_gastado / NULLIF(dias_como_cliente, 0)) * 365,
+        2
+    ) AS ltv_proyectado_anual
+FROM metricas_usuario
+WHERE ordenes_completadas > 1
+GROUP BY usuario_id, nombre, email, total_ordenes, ordenes_completadas, 
+         ordenes_canceladas, total_gastado, ticket_promedio, ultima_compra, 
+         primera_compra, dias_como_cliente
+HAVING ordenes_completadas > 1
+ORDER BY ranking_por_gasto;
+
+COMMENT ON VIEW v_usuarios_vip IS 
+'Segmentación de clientes VIP con ranking y proyección de lifetime value';
