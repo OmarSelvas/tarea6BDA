@@ -14,5 +14,6 @@ ON students(program, id);
 
 CREATE INDEX IF NOT EXISTS idx_groups_teacher_course 
 ON groups(teacher_id, course_id, term);
+CREATE INDEX idx_students_name_trgm ON students USING gin(name gin_trgm_ops);
 ON students USING gin(name gin_trgm_ops);
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
