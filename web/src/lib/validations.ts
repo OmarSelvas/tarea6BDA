@@ -1,95 +1,86 @@
-import { query } from './db';
-import { CoursePerformance, AtRiskStudent } from './definitions';
-import { z } from 'zod';
+import { query } from '@/lib/db';
+import { 
+  CoursePerformance, 
+  AtRiskStudent, 
+  StudentRanking, 
+  AttendanceSummary, 
+  GroupDashboard 
+} from '@/lib/definitions';
 
-// Schema de validación para filtros
-const PaginationSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(50).default(10),
-});
-
-// REPORTE 1: Rendimiento (Simple, sin filtros complejos)
-export async function fetchCoursePerformance() {
-  try {
-    // IMPORTANTE: SELECT a la VIEW, no query compleja
-    const result = await query('SELECT * FROM report_course_performance ORDER BY approval_rate ASC');
-    return result.rows as CoursePerformance[];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch course performance data.');
-  }
+// REPORTE 1: Rendimiento por Curso
+export async function getCoursePerformance() {
+  const sql = 'SELECT * FROM v_course_performance ORDER BY avg_final_grade ASC';
+  const result = await query(sql);
+  return { data: result.rows as CoursePerformance[] };
 }
 
-// REPORTE 2: Estudiantes en Riesgo (Con Paginación y Filtros)
-export async function fetchAtRiskStudents(currentPage: number, queryStr: string) {
-  const parsedPage = PaginationSchema.safeParse({ page: currentPage });
-  if (!parsedPage.success) throw new Error("Invalid page");
+// REPORTE 2: Estudiantes en Riesgo (Con Paginación y Filtro)
+export async function getStudentsAtRisk(search: string = '', page: number = 1) {
+  const itemsPerPage = 6;
+  const offset = (page - 1) * itemsPerPage;
+  const searchTerm = `%${search}%`;
+
+  // 1. Obtener datos paginados
+  const sqlData = `
+    SELECT 
+      name as nombre_estudiante,
+      program as programa,
+      global_average as promedio_final,
+      status_academico as nivel_riesgo,
+      0 as porcentaje_asistencia -- Nota: Tu vista SQL 2 no tiene asistencia, ponemos 0 o ajusta la vista
+    FROM v_at_risk_students
+    WHERE name ILIKE $1
+    ORDER BY global_average ASC
+    LIMIT $2 OFFSET $3
+  `;
   
-  const offset = (parsedPage.data.page - 1) * 6; 
-  const searchTerm = `%${queryStr}%`;
+  // 2. Obtener total para paginación
+  const sqlCount = `SELECT COUNT(*) FROM v_at_risk_students WHERE name ILIKE $1`;
 
-  try {
-    const result = await query(`
-      SELECT * FROM report_at_risk_students
-      WHERE course_name ILIKE $1 OR student_name ILIKE $1
-      ORDER BY attendance_pct ASC
-      LIMIT 6 OFFSET $2
-    `, [searchTerm, offset]);
-    
-    return result.rows as AtRiskStudent[];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch at-risk students.');
-  }
+  const [dataResult, countResult] = await Promise.all([
+    query(sqlData, [searchTerm, itemsPerPage, offset]),
+    query(sqlCount, [searchTerm])
+  ]);
+
+  const totalItems = parseInt(countResult.rows[0].count);
+  
+  return {
+    data: dataResult.rows, // Ajustamos al tipo 'any' temporalmente porque la vista SQL difiere un poco de tu UI
+    pagination: {
+      page,
+      totalPages: Math.ceil(totalItems / itemsPerPage),
+      totalItems
+    }
+  };
 }
 
-export async function fetchTotalAtRiskStudents(queryStr: string) {
-  const searchTerm = `%${queryStr}%`;
-
-  try {
-    const result = await query(`
-      SELECT COUNT(*) FROM report_at_risk_students
-      WHERE course_name ILIKE $1 OR student_name ILIKE $1
-    `, [searchTerm]);
-    
-    return parseInt(result.rows[0].count, 10);
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total count of at-risk students.');
-  }
+// REPORTE 3: Ranking (Top Estudiantes)
+export async function getStudentRankings() {
+  const sql = `
+    SELECT 
+      name as nombre_estudiante, 
+      program as programa, 
+      final_average as promedio_periodo, 
+      ranking as posicion_programa,
+      'Excelente' as clasificacion_rendimiento, -- Campo simulado para UI
+      5 as materias_cursadas -- Campo simulado para UI
+    FROM v_student_rankings 
+    ORDER BY program, ranking
+  `;
+  const result = await query(sql);
+  return { data: result.rows };
 }
 
-export async function fetchTotalPagesAtRiskStudents(queryStr: string) {
-  const totalCount = await fetchTotalAtRiskStudents(queryStr);
-  return Math.ceil(totalCount / 6); 
-}   
+// REPORTE 4: Asistencia
+export async function getAttendanceSummary() {
+  const sql = 'SELECT * FROM v_attendance_summary ORDER BY attendance_pct ASC';
+  const result = await query(sql);
+  return { data: result.rows as AttendanceSummary[] };
+}
 
-export async function fetchAtRiskStudentsByCourse(courseName: string) {
-  try {
-    const result = await query(`
-      SELECT * FROM report_at_risk_students
-      WHERE course_name = $1
-      ORDER BY attendance_pct ASC
-    `, [courseName]);
-    
-    return result.rows as AtRiskStudent[];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch at-risk students by course.');
-  }
-}   
-
-export async function fetchAtRiskStudentsByStudent(studentName: string) {
-  try {
-    const result = await query(`
-      SELECT * FROM report_at_risk_students
-      WHERE student_name = $1
-      ORDER BY attendance_pct ASC
-    `, [studentName]);
-    
-    return result.rows as AtRiskStudent[];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch at-risk students by student name.');
-  }
+// REPORTE 5: Dashboard de Grupos
+export async function getGroupsDashboard() {
+  const sql = 'SELECT * FROM v_groups_dashboard ORDER BY enrolled DESC';
+  const result = await query(sql);
+  return { data: result.rows as GroupDashboard[] };
 }
