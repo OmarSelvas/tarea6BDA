@@ -81,10 +81,3 @@ FROM groups g
 JOIN courses c ON g.course_id = c.id
 LEFT JOIN enrollments e ON g.id = e.group_id
 GROUP BY g.id, c.code, c.name, g.term;
-
--- Dar permiso al usuario de la app SOLO para ver estas vistas
-GRANT SELECT ON v_course_performance TO app_user;
-GRANT SELECT ON v_at_risk_students TO app_user;
-GRANT SELECT ON v_student_rankings TO app_user;
-GRANT SELECT ON v_attendance_summary TO app_user;
-GRANT SELECT ON v_groups_dashboard TO app_user;
