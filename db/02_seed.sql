@@ -157,16 +157,16 @@ INSERT INTO ordenes (usuario_id, total, status) VALUES
     (5, 1299.99, 'pagado'),
     (6, 399.99, 'pagado'),
     -- Nuevas (Usuarios 7-22)
-    (7, 104.99, 'procesando'),    -- Tesla compró Herramientas + Ciencia
+    (7, 104.99, 'pagado'),    -- Tesla compró Herramientas + Ciencia
     (8, 28.00, 'enviado'),         -- Marie compró Belleza
     (9, 67.50, 'entregado'),       -- Einstein compró Libros
     (10, 129.98, 'cancelado'),     -- Newton (manzanas no hay, compró Juguetes y deportes)
     (11, 419.98, 'enviado'),       -- Galileo compró Telescopio (Monitor) + Libro
-    (12, 1299.99, 'procesando'),   -- Hawking compró Laptop
+    (12, 1299.99, 'pagado'),   -- Hawking compró Laptop
     (13, 85.00, 'pagado'),         -- Rosalind compró Herramientas
     (14, 89.98, 'entregado'),      -- Darwin compró Mascotas y Jardín
     (15, 59.99, 'pendiente'),      -- Bohr compró Videojuego
-    (16, 49.99, 'devolucion'),     -- Schrödinger (¿está vivo o muerto el pedido?) Cama gato
+    (16, 49.99, 'cancelado'),     -- Schrödinger (¿está vivo o muerto el pedido?) Cama gato
     (17, 119.99, 'pagado'),        -- Feynman compró Música
     (18, 12.00, 'entregado'),      -- Katherine compró Oficina
     (19, 1389.98, 'pagado'),       -- Tim Berners compró Laptop + Teclado

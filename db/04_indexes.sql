@@ -16,9 +16,8 @@ CREATE INDEX IF NOT EXISTS idx_productos_categoria
 ON productos(categoria_id, id)
 WHERE activo = TRUE;
 
-CREATE INDEX IF NOT EXISTS idx_ordenes_recientes 
-ON ordenes(created_at DESC, id)
-WHERE created_at >= CURRENT_DATE - INTERVAL '30 days';
+CREATE INDEX IF NOT EXISTS idx_ordenes_fecha 
+ON ordenes(created_at DESC, id);
 
 CREATE INDEX IF NOT EXISTS idx_usuarios_nombre_trgm 
 ON usuarios USING gin(nombre gin_trgm_ops);

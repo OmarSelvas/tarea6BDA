@@ -1,31 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { PaginationSchema } from '@/lib/validations';
 import type { RankingProducto } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-/**
- * GET /api/reports/products?page=1&limit=50
- * Obtiene ranking de productos con paginación
- */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
-    const validation = PaginationSchema.safeParse({
-      page: Number(searchParams.get('page')) || 1,
-      limit: Number(searchParams.get('limit')) || 50,
-    });
+    const page = Number(searchParams.get('page')) || 1;
+    const limit = Number(searchParams.get('limit')) || 50;
 
-    if (!validation.success) {
+    // Validación simple
+    if (page < 1 || limit < 1 || limit > 100) {
       return NextResponse.json(
         { success: false, error: 'Parámetros inválidos' },
         { status: 400 }
       );
     }
 
-    const { page, limit } = validation.data;
     const offset = (page - 1) * limit;
 
     const result = await query<RankingProducto>(
@@ -56,7 +48,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching product rankings:', error);
     return NextResponse.json(
       { success: false, error: 'Error al obtener datos de productos' },
-      { status: 500 }
+      { status:   500 }
     );
   }
 }
