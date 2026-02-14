@@ -61,24 +61,24 @@ export default async function ProductRankingsPage({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-8">
+    <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 hover:text-amber-600 transition font-medium bg-white/50 px-4 py-2 rounded-lg border border-transparent hover:border-amber-200 hover:shadow-sm"
+            className="inline-flex items-center text-gray-700 hover:text-amber-700 transition font-bold bg-white px-4 py-2 rounded-lg border border-gray-300 hover:border-amber-500 hover:shadow"
           >
             <span className="mr-2 text-xl">←</span> Volver al Dashboard
           </Link>
         </div>
 
-        <div className="mb-8 bg-white/60 p-6 rounded-3xl backdrop-blur-sm border border-amber-100">
-          <h1 className="text-4xl font-bold text-amber-600 mb-2">🏆 Ranking de Productos</h1>
-          <p className="text-gray-600">Top productos por ventas e ingresos organizados por categoría</p>
+        <div className="mb-8 bg-white p-6 rounded-lg shadow border border-gray-200">
+          <h1 className="text-3xl font-black text-gray-900 mb-2">🏆 Ranking de Productos</h1>
+          <p className="text-gray-700 font-semibold">Top productos por ventas e ingresos organizados por categoría</p>
         </div>
 
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
             <span className="text-4xl">🌟</span>
             Top 10 Global
           </h2>
@@ -90,10 +90,10 @@ export default async function ProductRankingsPage({
         </div>
 
         <div className="space-y-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">📁 Por Categoría</h2>
+          <h2 className="text-2xl font-black text-gray-900 mb-6">📁 Por Categoría</h2>
           {Object.entries(byCategory).map(([categoria, products]) => (
             <div key={categoria}>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
                 <span className="text-3xl">📦</span>
                 {categoria}
               </h3>
@@ -127,11 +127,11 @@ function ProductCard({
   };
 
   const getClassificationColor = (clasificacion: string) => {
-    if (clasificacion === 'Bestseller') return 'from-green-400 to-teal-400';
-    if (clasificacion === 'Alto Rendimiento') return 'from-blue-400 to-cyan-400';
-    if (clasificacion === 'Rendimiento Medio') return 'from-yellow-400 to-orange-400';
-    if (clasificacion === 'Bajo Rendimiento') return 'from-orange-400 to-red-400';
-    return 'from-gray-400 to-slate-400';
+    if (clasificacion === 'Bestseller') return 'bg-green-600';
+    if (clasificacion === 'Alto Rendimiento') return 'bg-blue-600';
+    if (clasificacion === 'Rendimiento Medio') return 'bg-yellow-600';
+    if (clasificacion === 'Bajo Rendimiento') return 'bg-orange-600';
+    return 'bg-gray-600';
   };
 
   const rank = showGlobalRank ? product.ranking_global : product.ranking_categoria;
@@ -140,8 +140,8 @@ function ProductCard({
 
   return (
     <div
-      className={`bg-white/80 backdrop-blur rounded-3xl p-6 shadow-lg border-2 transition-all hover:scale-[1.02] ${
-        isTopThree ? 'border-amber-300 bg-gradient-to-r from-yellow-50 to-amber-50' : 'border-gray-200'
+      className={`bg-white rounded-lg p-6 shadow hover:shadow-lg transition-shadow border-2 ${
+        isTopThree ? 'border-amber-400 bg-amber-50' : 'border-gray-200'
       }`}
     >
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -149,12 +149,12 @@ function ProductCard({
           <div className="text-4xl">{getMedalEmoji(rank)}</div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1">
-              <span className="text-3xl font-bold text-amber-600">#{rank}</span>
-              <h3 className="text-xl font-bold text-gray-800 truncate">{product.nombre}</h3>
+              <span className="text-3xl font-black text-amber-700">#{rank}</span>
+              <h3 className="text-xl font-black text-gray-900 truncate">{product.nombre}</h3>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">{product.codigo}</span>
-              <span className="text-sm text-gray-600">{product.categoria}</span>
+              <span className="text-sm font-black text-gray-700 bg-gray-100 px-2 py-1 rounded border border-gray-300">{product.codigo}</span>
+              <span className="text-sm text-gray-700 font-bold">{product.categoria}</span>
             </div>
           </div>
         </div>
@@ -167,17 +167,17 @@ function ProductCard({
         </div>
 
         <div
-          className={`bg-gradient-to-r ${getClassificationColor(product.clasificacion_producto)} text-white rounded-full px-4 py-2`}
+          className={`${getClassificationColor(product.clasificacion_producto)} text-white rounded px-4 py-2`}
         >
-          <p className="text-sm font-semibold">{product.clasificacion_producto}</p>
+          <p className="text-sm font-black">{product.clasificacion_producto}</p>
         </div>
       </div>
 
       {diff !== 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="mt-4 pt-4 border-t border-gray-300">
+          <p className="text-sm text-gray-700 font-bold">
             Diferencia vs promedio de categoría:{' '}
-            <span className={`font-bold ${diff > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`font-black ${diff > 0 ? 'text-green-700' : 'text-red-700'}`}>
               {diff > 0 ? '+' : ''}${diff.toFixed(2)}
             </span>
           </p>
@@ -189,16 +189,16 @@ function ProductCard({
 
 function MetricBox({ label, value, color }: { label: string; value: string | number; color: string }) {
   const colorClasses = {
-    green: 'bg-green-100 text-green-600',
-    blue: 'bg-blue-100 text-blue-600',
-    purple: 'bg-purple-100 text-purple-600',
-    orange: 'bg-orange-100 text-orange-600',
+    green: 'bg-green-100 text-green-700 border-green-300',
+    blue: 'bg-blue-100 text-blue-700 border-blue-300',
+    purple: 'bg-purple-100 text-purple-700 border-purple-300',
+    orange: 'bg-orange-100 text-orange-700 border-orange-300',
   };
 
   return (
-    <div className={`${colorClasses[color as keyof typeof colorClasses]} rounded-2xl px-4 py-3 text-center min-w-[90px]`}>
-      <p className="text-xl font-bold">{value}</p>
-      <p className="text-xs">{label}</p>
+    <div className={`${colorClasses[color as keyof typeof colorClasses]} rounded-lg px-4 py-3 text-center min-w-[90px] border-2`}>
+      <p className="text-xl font-black">{value}</p>
+      <p className="text-xs font-bold">{label}</p>
     </div>
   );
 }

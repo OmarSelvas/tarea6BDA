@@ -46,20 +46,20 @@ export default async function VIPCustomersPage() {
   const segmentOrder = ['VIP Platino', 'VIP Oro', 'VIP Plata', 'Cliente Regular'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 p-8">
+    <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 hover:text-purple-600 transition font-medium bg-white/50 px-4 py-2 rounded-lg border border-transparent hover:border-purple-200 hover:shadow-sm"
+            className="inline-flex items-center text-gray-700 hover:text-purple-700 transition font-bold bg-white px-4 py-2 rounded-lg border border-gray-300 hover:border-purple-500 hover:shadow"
           >
             <span className="mr-2 text-xl">←</span> Volver al Dashboard
           </Link>
         </div>
 
-        <div className="mb-8 bg-white/60 p-6 rounded-3xl backdrop-blur-sm border border-purple-100">
-          <h1 className="text-4xl font-bold text-purple-600 mb-2">💎 Clientes VIP</h1>
-          <p className="text-gray-600">Segmentación y análisis de mejores clientes por valor</p>
+        <div className="mb-8 bg-white p-6 rounded-lg shadow border border-gray-200">
+          <h1 className="text-3xl font-black text-gray-900 mb-2">💎 Clientes VIP</h1>
+          <p className="text-gray-700 font-semibold">Segmentación y análisis de mejores clientes por valor</p>
         </div>
 
         {/* KPIs */}
@@ -93,7 +93,7 @@ export default async function VIPCustomersPage() {
 
             return (
               <div key={segmento}>
-                <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
                   {getSegmentIcon(segmento)}
                   {segmento} ({customers.length})
                 </h2>
@@ -113,10 +113,10 @@ export default async function VIPCustomersPage() {
 
 function VIPCard({ customer }: { customer: any }) {
   const getSegmentColor = (segmento: string) => {
-    if (segmento === 'VIP Platino') return 'from-slate-300 to-gray-400';
-    if (segmento === 'VIP Oro') return 'from-yellow-400 to-amber-500';
-    if (segmento === 'VIP Plata') return 'from-gray-300 to-slate-400';
-    return 'from-blue-400 to-cyan-400';
+    if (segmento === 'VIP Platino') return 'bg-gray-600';
+    if (segmento === 'VIP Oro') return 'bg-yellow-600';
+    if (segmento === 'VIP Plata') return 'bg-gray-500';
+    return 'bg-blue-600';
   };
 
   const getMedalEmoji = (rank: number) => {
@@ -127,51 +127,51 @@ function VIPCard({ customer }: { customer: any }) {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur rounded-3xl p-6 shadow-lg border-2 border-purple-200 transition-all hover:scale-[1.02]">
+    <div className="bg-white rounded-lg p-6 shadow hover:shadow-lg transition-shadow border-2 border-gray-200">
       <div className="flex items-center justify-between flex-wrap gap-4">
         {/* Ranking y nombre */}
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <div className="text-4xl">{getMedalEmoji(customer.ranking_por_gasto)}</div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1">
-              <span className="text-3xl font-bold text-purple-600">#{customer.ranking_por_gasto}</span>
-              <h3 className="text-xl font-bold text-gray-800 truncate">{customer.nombre}</h3>
+              <span className="text-3xl font-black text-purple-700">#{customer.ranking_por_gasto}</span>
+              <h3 className="text-xl font-black text-gray-900 truncate">{customer.nombre}</h3>
             </div>
-            <p className="text-sm text-gray-600 truncate">{customer.email}</p>
+            <p className="text-sm text-gray-700 font-bold truncate">{customer.email}</p>
           </div>
         </div>
 
         {/* Métricas */}
         <div className="flex gap-3 flex-wrap">
-          <MetricBox label="Total Gastado" value={`$${customer.total_gastado.toLocaleString()}`} color="green" />
-          <MetricBox label="LTV Anual" value={`$${customer.ltv_proyectado_anual.toFixed(0)}`} color="blue" />
-          <MetricBox label="Ticket Prom" value={`$${customer.ticket_promedio}`} color="purple" />
+          <MetricBox label="Total Gastado" value={`$${Number(customer.total_gastado).toLocaleString()}`} color="green" />
+          <MetricBox label="LTV Anual" value={`$${Number(customer.ltv_proyectado_anual).toFixed(0)}`} color="blue" />
+          <MetricBox label="Ticket Prom" value={`$${Number(customer.ticket_promedio).toFixed(2)}`} color="purple" />
           <MetricBox label="Órdenes" value={customer.ordenes_completadas} color="orange" />
         </div>
 
         {/* Segmento */}
-        <div className={`bg-gradient-to-r ${getSegmentColor(customer.segmento_cliente)} text-white rounded-full px-4 py-2`}>
-          <p className="text-sm font-semibold">{customer.segmento_cliente}</p>
+        <div className={`${getSegmentColor(customer.segmento_cliente)} text-white rounded px-4 py-2`}>
+          <p className="text-sm font-black">{customer.segmento_cliente}</p>
         </div>
       </div>
 
       {/* Métricas adicionales */}
-      <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <div className="mt-4 pt-4 border-t border-gray-300 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div>
-          <p className="text-gray-600">Frecuencia/mes</p>
-          <p className="font-bold text-gray-800">{customer.frecuencia_mensual}</p>
+          <p className="text-gray-700 font-bold">Frecuencia/mes</p>
+          <p className="font-black text-gray-900">{customer.frecuencia_mensual}</p>
         </div>
         <div>
-          <p className="text-gray-600">Días como cliente</p>
-          <p className="font-bold text-gray-800">{customer.dias_como_cliente}</p>
+          <p className="text-gray-700 font-bold">Días como cliente</p>
+          <p className="font-black text-gray-900">{customer.dias_como_cliente}</p>
         </div>
         <div>
-          <p className="text-gray-600">Última compra</p>
-          <p className="font-bold text-gray-800">{new Date(customer.ultima_compra).toLocaleDateString()}</p>
+          <p className="text-gray-700 font-bold">Última compra</p>
+          <p className="font-black text-gray-900">{new Date(customer.ultima_compra).toLocaleDateString()}</p>
         </div>
         <div>
-          <p className="text-gray-600">Decil de gasto</p>
-          <p className="font-bold text-purple-600">Top {customer.decil_gasto}0%</p>
+          <p className="text-gray-700 font-bold">Decil de gasto</p>
+          <p className="font-black text-purple-700">Top {customer.decil_gasto}0%</p>
         </div>
       </div>
     </div>
@@ -180,35 +180,35 @@ function VIPCard({ customer }: { customer: any }) {
 
 function MetricBox({ label, value, color }: { label: string; value: string | number; color: string }) {
   const colorClasses = {
-    green: 'bg-green-100 text-green-600',
-    blue: 'bg-blue-100 text-blue-600',
-    purple: 'bg-purple-100 text-purple-600',
-    orange: 'bg-orange-100 text-orange-600',
+    green: 'bg-green-100 text-green-700 border-green-300',
+    blue: 'bg-blue-100 text-blue-700 border-blue-300',
+    purple: 'bg-purple-100 text-purple-700 border-purple-300',
+    orange: 'bg-orange-100 text-orange-700 border-orange-300',
   };
 
   return (
-    <div className={`${colorClasses[color as keyof typeof colorClasses]} rounded-2xl px-4 py-3 text-center min-w-[100px]`}>
-      <p className="text-xl font-bold">{value}</p>
-      <p className="text-xs">{label}</p>
+    <div className={`${colorClasses[color as keyof typeof colorClasses]} rounded-lg px-4 py-3 text-center min-w-[100px] border-2`}>
+      <p className="text-xl font-black">{value}</p>
+      <p className="text-xs font-bold">{label}</p>
     </div>
   );
 }
 
 function KPICard({ label, value, icon, color }: { label: string; value: string | number; icon: string; color: string }) {
   const colorClasses = {
-    purple: 'from-purple-500 to-purple-600',
-    green: 'from-green-500 to-green-600',
-    blue: 'from-blue-500 to-blue-600',
-    yellow: 'from-yellow-500 to-yellow-600',
+    purple: 'bg-purple-600',
+    green: 'bg-green-600',
+    blue: 'bg-blue-600',
+    yellow: 'bg-yellow-600',
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} text-white rounded-2xl p-6 shadow-lg`}>
+    <div className={`${colorClasses[color as keyof typeof colorClasses]} text-white rounded-lg p-6 shadow-lg`}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-3xl">{icon}</span>
         <div className="text-right">
-          <p className="text-3xl font-bold">{value}</p>
-          <p className="text-sm opacity-90">{label}</p>
+          <p className="text-3xl font-black">{value}</p>
+          <p className="text-sm font-bold">{label}</p>
         </div>
       </div>
     </div>

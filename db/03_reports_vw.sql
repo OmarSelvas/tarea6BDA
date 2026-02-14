@@ -69,7 +69,7 @@ SELECT
     COALESCE(m.ordenes_canceladas, 0) AS ordenes_canceladas,
     COALESCE(m.ordenes_completadas, 0) AS ordenes_completadas,
     COALESCE(m.total_gastado, 0) AS total_gastado,
-    COALESCE(m.dias_sin_comprar, 9999) AS dias_sin_comprar,
+    COALESCE(m.dias_sin_comprar, 0) AS dias_sin_comprar,
     COALESCE(m.tasa_cancelacion, 0) AS tasa_cancelacion,
     CASE 
         WHEN m.dias_sin_comprar > 180 OR m.tasa_cancelacion > 50 THEN 'Riesgo Crítico'
@@ -84,10 +84,7 @@ SELECT
     ) AS valor_potencial_perdido
 FROM usuarios u
 LEFT JOIN metricas_cliente m ON u.id = m.usuario_id
-WHERE m.dias_sin_comprar > 30 OR m.ordenes_canceladas > 1
-GROUP BY u.id, u.nombre, u.email, m.total_ordenes, m.ordenes_canceladas, 
-         m.ordenes_completadas, m.total_gastado, m.dias_sin_comprar, m.tasa_cancelacion
-HAVING COALESCE(m.dias_sin_comprar, 9999) > 30 OR COALESCE(m.ordenes_canceladas, 0) > 1
+WHERE m.total_ordenes > 0  
 ORDER BY nivel_riesgo, dias_sin_comprar DESC;
 
 COMMENT ON VIEW v_clientes_riesgo IS 
@@ -252,12 +249,5 @@ SELECT
         2
     ) AS ltv_proyectado_anual
 FROM metricas_usuario
-WHERE ordenes_completadas > 1
-GROUP BY usuario_id, nombre, email, total_ordenes, ordenes_completadas, 
-         ordenes_canceladas, total_gastado, ticket_promedio, ultima_compra, 
-         primera_compra, dias_como_cliente
-HAVING ordenes_completadas > 1
+WHERE total_ordenes > 0 
 ORDER BY ranking_por_gasto;
-
-COMMENT ON VIEW v_usuarios_vip IS 
-'Segmentación de clientes VIP con ranking y proyección de lifetime value';

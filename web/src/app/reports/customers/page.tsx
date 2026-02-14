@@ -46,21 +46,21 @@ export default async function AtRiskCustomersPage({
   const { data, pagination } = await getAtRiskCustomers(query, currentPage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 p-8">
+    <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 hover:text-red-600 transition font-medium bg-white/50 px-4 py-2 rounded-lg border border-transparent hover:border-red-200 hover:shadow-sm"
+            className="inline-flex items-center text-gray-700 hover:text-red-700 transition font-bold bg-white px-4 py-2 rounded-lg border border-gray-300 hover:border-red-500 hover:shadow"
           >
             <span className="mr-2 text-xl">←</span> Volver al Dashboard
           </Link>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-white/60 p-6 rounded-3xl backdrop-blur-sm border border-red-100">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-white p-6 rounded-lg shadow border border-gray-200">
           <div>
-            <h1 className="text-4xl font-bold text-red-600 mb-2">⚠️ Clientes en Riesgo de Abandono</h1>
-            <p className="text-gray-600">Gestión proactiva de retención de clientes</p>
+            <h1 className="text-3xl font-black text-gray-900 mb-2">⚠️ Clientes en Riesgo de Abandono</h1>
+            <p className="text-gray-700 font-semibold">Gestión proactiva de retención de clientes</p>
           </div>
 
           <form className="w-full md:w-auto flex gap-2">
@@ -68,19 +68,19 @@ export default async function AtRiskCustomersPage({
               name="q"
               defaultValue={query}
               placeholder="Buscar por nombre o email..."
-              className="px-5 py-3 rounded-l-xl border border-gray-300 focus:border-red-400 outline-none w-full md:w-80"
+              className="px-5 py-3 rounded-l-lg border-2 border-gray-300 focus:border-red-500 outline-none w-full md:w-80 font-bold"
             />
             {query && (
               <Link
                 href="/reports/customers"
-                className="bg-gray-100 border border-gray-300 text-gray-500 px-3 flex items-center hover:bg-gray-200 transition"
+                className="bg-gray-200 border-2 border-gray-300 text-gray-700 px-3 flex items-center hover:bg-gray-300 transition font-black"
               >
                 ✕
               </Link>
             )}
             <button
               type="submit"
-              className="bg-red-500 text-white px-6 py-3 rounded-r-xl font-bold hover:bg-red-600 transition"
+              className="bg-red-600 text-white px-6 py-3 rounded-r-lg font-black hover:bg-red-700 transition"
             >
               🔍 Buscar
             </button>
@@ -107,51 +107,51 @@ export default async function AtRiskCustomersPage({
 
 function CustomerCard({ customer }: { customer: any }) {
   const getRiskColor = (nivel: string) => {
-    if (nivel === 'Riesgo Crítico') return 'from-red-500 to-pink-500';
-    if (nivel === 'Riesgo Alto') return 'from-orange-500 to-red-400';
-    if (nivel === 'Riesgo Moderado') return 'from-yellow-400 to-orange-400';
-    return 'from-green-400 to-teal-400';
+    if (nivel === 'Riesgo Crítico') return 'bg-red-600';
+    if (nivel === 'Riesgo Alto') return 'bg-orange-600';
+    if (nivel === 'Riesgo Moderado') return 'bg-yellow-600';
+    return 'bg-green-600';
   };
 
   const getRiskBg = (nivel: string) => {
-    if (nivel === 'Riesgo Crítico') return 'bg-red-50 border-red-300';
-    if (nivel === 'Riesgo Alto') return 'bg-orange-50 border-orange-300';
-    if (nivel === 'Riesgo Moderado') return 'bg-yellow-50 border-yellow-300';
-    return 'bg-green-50 border-green-300';
+    if (nivel === 'Riesgo Crítico') return 'bg-red-50 border-red-400';
+    if (nivel === 'Riesgo Alto') return 'bg-orange-50 border-orange-400';
+    if (nivel === 'Riesgo Moderado') return 'bg-yellow-50 border-yellow-400';
+    return 'bg-green-50 border-green-400';
   };
 
   return (
-    <div className={`rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all hover:scale-105 border-2 ${getRiskBg(customer.nivel_riesgo)}`}>
-      <div className={`bg-gradient-to-r ${getRiskColor(customer.nivel_riesgo)} text-white rounded-full px-4 py-1 inline-block mb-4 text-xs font-bold uppercase`}>
+    <div className={`rounded-lg p-6 shadow hover:shadow-lg transition-shadow border-2 ${getRiskBg(customer.nivel_riesgo)}`}>
+      <div className={`${getRiskColor(customer.nivel_riesgo)} text-white rounded px-3 py-1 inline-block mb-4 text-xs font-black uppercase`}>
         {customer.nivel_riesgo}
       </div>
 
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-gray-800 mb-1">{customer.nombre}</h3>
-        <p className="text-sm text-gray-600">{customer.email}</p>
+        <h3 className="text-xl font-black text-gray-900 mb-1">{customer.nombre}</h3>
+        <p className="text-sm text-gray-700 font-bold">{customer.email}</p>
       </div>
 
-      <div className="space-y-3 border-t border-black/10 pt-4">
+      <div className="space-y-3 border-t border-gray-300 pt-4">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Total Gastado</span>
-          <span className="font-bold text-green-600">${customer.total_gastado.toFixed(2)}</span>
+          <span className="text-gray-700 font-bold">Total Gastado</span>
+          <span className="font-black text-green-700">${Number(customer.total_gastado).toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Días sin comprar</span>
-          <span className="font-bold text-red-600">{customer.dias_sin_comprar}</span>
+          <span className="text-gray-700 font-bold">Días sin comprar</span>
+          <span className="font-black text-red-700">{customer.dias_sin_comprar}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Órdenes Canceladas</span>
-          <span className="font-bold text-orange-600">{customer.ordenes_canceladas}</span>
+          <span className="text-gray-700 font-bold">Órdenes Canceladas</span>
+          <span className="font-black text-orange-700">{customer.ordenes_canceladas}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Tasa Cancelación</span>
-          <span className="font-bold text-purple-600">{customer.tasa_cancelacion}%</span>
+          <span className="text-gray-700 font-bold">Tasa Cancelación</span>
+          <span className="font-black text-purple-700">{customer.tasa_cancelacion}%</span>
         </div>
-        <div className="pt-3 border-t border-black/10">
+        <div className="pt-3 border-t border-gray-300">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600 font-medium">Valor en Riesgo</span>
-            <span className="font-bold text-red-600 text-lg">${customer.valor_potencial_perdido.toFixed(2)}</span>
+            <span className="text-gray-700 font-black">Valor en Riesgo</span>
+            <span className="font-black text-red-700 text-lg">${Number(customer.valor_potencial_perdido).toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -161,15 +161,15 @@ function CustomerCard({ customer }: { customer: any }) {
 
 function EmptyState({ query }: { query: string }) {
   return (
-    <div className="text-center py-20 bg-white/50 rounded-3xl border-2 border-dashed border-red-200">
+    <div className="text-center py-20 bg-white rounded-lg border-2 border-dashed border-gray-300">
       <div className="text-4xl mb-4">🎉</div>
-      <h3 className="text-xl font-bold text-gray-800 mb-2">
+      <h3 className="text-xl font-black text-gray-900 mb-2">
         {query ? 'No se encontraron clientes' : '¡Excelente! No hay clientes en riesgo'}
       </h3>
       {query && (
-        <p className="text-gray-500">
+        <p className="text-gray-700 font-semibold">
           Intenta con otro término o{' '}
-          <Link href="/reports/customers" className="text-red-500 font-bold underline">
+          <Link href="/reports/customers" className="text-red-700 font-black underline">
             limpia el filtro
           </Link>
           .
@@ -181,33 +181,33 @@ function EmptyState({ query }: { query: string }) {
 
 function Pagination({ query, currentPage, pagination }: any) {
   return (
-    <div className="flex justify-center items-center gap-6 bg-white/80 p-4 rounded-2xl backdrop-blur shadow-sm max-w-md mx-auto">
+    <div className="flex justify-center items-center gap-6 bg-white p-4 rounded-lg shadow border border-gray-200 max-w-md mx-auto">
       {currentPage > 1 ? (
         <Link
           href={`/reports/customers?q=${query}&page=${currentPage - 1}`}
-          className="bg-white px-5 py-2 rounded-xl shadow border border-gray-200 text-red-600 font-bold hover:bg-red-50"
+          className="bg-white px-5 py-2 rounded-lg shadow border-2 border-gray-300 text-red-700 font-black hover:bg-red-50"
         >
           ← Anterior
         </Link>
       ) : (
-        <button disabled className="px-5 py-2 text-gray-300 font-bold cursor-not-allowed">
+        <button disabled className="px-5 py-2 text-gray-400 font-black cursor-not-allowed">
           ← Anterior
         </button>
       )}
 
-      <span className="text-gray-600 font-medium bg-gray-100 px-4 py-2 rounded-lg">
-        Página <span className="text-red-600 font-bold">{pagination.page}</span> de {pagination.totalPages}
+      <span className="text-gray-700 font-bold bg-gray-100 px-4 py-2 rounded-lg">
+        Página <span className="text-red-700 font-black">{pagination.page}</span> de {pagination.totalPages}
       </span>
 
       {currentPage < pagination.totalPages ? (
         <Link
           href={`/reports/customers?q=${query}&page=${currentPage + 1}`}
-          className="bg-white px-5 py-2 rounded-xl shadow border border-gray-200 text-red-600 font-bold hover:bg-red-50"
+          className="bg-white px-5 py-2 rounded-lg shadow border-2 border-gray-300 text-red-700 font-black hover:bg-red-50"
         >
           Siguiente →
         </Link>
       ) : (
-        <button disabled className="px-5 py-2 text-gray-300 font-bold cursor-not-allowed">
+        <button disabled className="px-5 py-2 text-gray-400 font-black cursor-not-allowed">
           Siguiente →
         </button>
       )}

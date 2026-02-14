@@ -1,9 +1,3 @@
--- ============================================
--- SEED.SQL - Datos Iniciales (Extendido)
--- ============================================
--- Equipo: [Nombre del equipo]
--- Fecha: [Fecha Actual]
--- ============================================
 -- ORDEN DE INSERCIÓN:
 -- 1. Catálogos (sin dependencias)
 -- 2. Entidades principales
@@ -42,34 +36,38 @@ INSERT INTO categorias (nombre, descripcion) VALUES
 -- 2. ENTIDADES PRINCIPALES
 -- ============================================
 
--- Usuarios (Total 22 + Edge Case)
-INSERT INTO usuarios (email, nombre, password_hash) VALUES
+-- Usuarios (Total 25)
+INSERT INTO usuarios (email, nombre, password_hash, created_at) VALUES
     -- Originales (1-6)
-    ('ada@example.com', 'Ada Lovelace', 'hash_placeholder_1'),
-    ('alan@example.com', 'Alan Turing', 'hash_placeholder_2'),
-    ('grace@example.com', 'Grace Hopper', 'hash_placeholder_3'),
-    ('linus@example.com', 'Linus Torvalds', 'hash_placeholder_4'),
-    ('margaret@example.com', 'Margaret Hamilton', 'hash_placeholder_5'),
-    ('donald@example.com', 'Donald Knuth', 'hash_placeholder_6'),
-    -- Nuevos (7-22)
-    ('nikola@example.com', 'Nikola Tesla', 'hash_placeholder_7'),
-    ('marie@example.com', 'Marie Curie', 'hash_placeholder_8'),
-    ('albert@example.com', 'Albert Einstein', 'hash_placeholder_9'),
-    ('isaac@example.com', 'Isaac Newton', 'hash_placeholder_10'),
-    ('galileo@example.com', 'Galileo Galilei', 'hash_placeholder_11'),
-    ('stephen@example.com', 'Stephen Hawking', 'hash_placeholder_12'),
-    ('rosalind@example.com', 'Rosalind Franklin', 'hash_placeholder_13'),
-    ('charles@example.com', 'Charles Darwin', 'hash_placeholder_14'),
-    ('niels@example.com', 'Niels Bohr', 'hash_placeholder_15'),
-    ('erwin@example.com', 'Erwin Schrödinger', 'hash_placeholder_16'),
-    ('richard@example.com', 'Richard Feynman', 'hash_placeholder_17'),
-    ('katherine@example.com', 'Katherine Johnson', 'hash_placeholder_18'),
-    ('tim@example.com', 'Tim Berners-Lee', 'hash_placeholder_19'),
-    ('steve@example.com', 'Steve Wozniak', 'hash_placeholder_20'),
-    ('hedy@example.com', 'Hedy Lamarr', 'hash_placeholder_21'),
-    ('dorothy@example.com', 'Dorothy Vaughan', 'hash_placeholder_22');
+    ('ada@example.com', 'Ada Lovelace', 'hash_placeholder_1', NOW() - INTERVAL '365 days'),
+    ('alan@example.com', 'Alan Turing', 'hash_placeholder_2', NOW() - INTERVAL '320 days'),
+    ('grace@example.com', 'Grace Hopper', 'hash_placeholder_3', NOW() - INTERVAL '280 days'),
+    ('linus@example.com', 'Linus Torvalds', 'hash_placeholder_4', NOW() - INTERVAL '250 days'),
+    ('margaret@example.com', 'Margaret Hamilton', 'hash_placeholder_5', NOW() - INTERVAL '200 days'),
+    ('donald@example.com', 'Donald Knuth', 'hash_placeholder_6', NOW() - INTERVAL '180 days'),
+    -- Nuevos (7-25)
+    ('nikola@example.com', 'Nikola Tesla', 'hash_placeholder_7', NOW() - INTERVAL '150 days'),
+    ('marie@example.com', 'Marie Curie', 'hash_placeholder_8', NOW() - INTERVAL '120 days'),
+    ('albert@example.com', 'Albert Einstein', 'hash_placeholder_9', NOW() - INTERVAL '90 days'),
+    ('isaac@example.com', 'Isaac Newton', 'hash_placeholder_10', NOW() - INTERVAL '60 days'),
+    ('galileo@example.com', 'Galileo Galilei', 'hash_placeholder_11', NOW() - INTERVAL '45 days'),
+    ('stephen@example.com', 'Stephen Hawking', 'hash_placeholder_12', NOW() - INTERVAL '30 days'),
+    ('rosalind@example.com', 'Rosalind Franklin', 'hash_placeholder_13', NOW() - INTERVAL '25 days'),
+    ('charles@example.com', 'Charles Darwin', 'hash_placeholder_14', NOW() - INTERVAL '20 days'),
+    ('niels@example.com', 'Niels Bohr', 'hash_placeholder_15', NOW() - INTERVAL '15 days'),
+    ('erwin@example.com', 'Erwin Schrödinger', 'hash_placeholder_16', NOW() - INTERVAL '10 days'),
+    ('richard@example.com', 'Richard Feynman', 'hash_placeholder_17', NOW() - INTERVAL '8 days'),
+    ('katherine@example.com', 'Katherine Johnson', 'hash_placeholder_18', NOW() - INTERVAL '5 days'),
+    ('tim@example.com', 'Tim Berners-Lee', 'hash_placeholder_19', NOW() - INTERVAL '3 days'),
+    ('steve@example.com', 'Steve Wozniak', 'hash_placeholder_20', NOW() - INTERVAL '2 days'),
+    ('hedy@example.com', 'Hedy Lamarr', 'hash_placeholder_21', NOW() - INTERVAL '1 day'),
+    ('dorothy@example.com', 'Dorothy Vaughan', 'hash_placeholder_22', NOW() - INTERVAL '12 hours'),
+    -- Usuarios inactivos (sin compras recientes)
+    ('inactive1@example.com', 'Usuario Inactivo 1', 'hash_placeholder_23', NOW() - INTERVAL '200 days'),
+    ('inactive2@example.com', 'Usuario Inactivo 2', 'hash_placeholder_24', NOW() - INTERVAL '250 days'),
+    ('inactive3@example.com', 'Usuario Inactivo 3', 'hash_placeholder_25', NOW() - INTERVAL '300 days');
 
--- Productos (Total 40+)
+-- Productos (Total 41)
 INSERT INTO productos (codigo, nombre, descripcion, precio, stock, categoria_id) VALUES
     -- Originales Electrónica (1)
     ('ELEC-001', 'Laptop Pro 15"', 'Laptop de alto rendimiento', 1299.99, 50, 1),
@@ -104,7 +102,7 @@ INSERT INTO productos (codigo, nombre, descripcion, precio, stock, categoria_id)
     ('BOOK-003', 'El Quijote', 'Edición conmemorativa', 22.50, 90, 5),
 
     -- Juguetes (6)
-    ('TOY-001', 'Set Bloques', '1000 piezas de construcción', 59.99, 45, 6),
+    ('TOY-001', 'Set de bloques', '1000 piezas de construcción', 59.99, 45, 6),
     ('TOY-002', 'Juego de Mesa', 'Juego de estrategia familiar', 35.00, 60, 6),
 
     -- Automotriz (7)
@@ -147,118 +145,128 @@ INSERT INTO productos (codigo, nombre, descripcion, precio, stock, categoria_id)
 -- 3. TRANSACCIONES/RELACIONES
 -- ============================================
 
--- Órdenes (Total 22)
-INSERT INTO ordenes (usuario_id, total, status) VALUES
-    -- Originales (1-6)
-    (1, 1389.97, 'entregado'),
-    (2, 69.98, 'enviado'),
-    (3, 284.98, 'pagado'),
-    (4, 99.98, 'pendiente'),
-    (5, 1299.99, 'pagado'),
-    (6, 399.99, 'pagado'),
-    -- Nuevas (Usuarios 7-22)
-    (7, 104.99, 'pagado'),    -- Tesla compró Herramientas + Ciencia
-    (8, 28.00, 'enviado'),         -- Marie compró Belleza
-    (9, 67.50, 'entregado'),       -- Einstein compró Libros
-    (10, 129.98, 'cancelado'),     -- Newton (manzanas no hay, compró Juguetes y deportes)
-    (11, 419.98, 'enviado'),       -- Galileo compró Telescopio (Monitor) + Libro
-    (12, 1299.99, 'pagado'),   -- Hawking compró Laptop
-    (13, 85.00, 'pagado'),         -- Rosalind compró Herramientas
-    (14, 89.98, 'entregado'),      -- Darwin compró Mascotas y Jardín
-    (15, 59.99, 'pendiente'),      -- Bohr compró Videojuego
-    (16, 49.99, 'cancelado'),     -- Schrödinger (¿está vivo o muerto el pedido?) Cama gato
-    (17, 119.99, 'pagado'),        -- Feynman compró Música
-    (18, 12.00, 'entregado'),      -- Katherine compró Oficina
-    (19, 1389.98, 'pagado'),       -- Tim Berners compró Laptop + Teclado
-    (20, 240.48, 'enviado'),       -- Wozniak compró componentes varios
-    (21, 55.00, 'entregado'),      -- Hedy compró Trituradora (secretos)
-    (22, 60.99, 'pendiente');      -- Dorothy compró Libros
+-- Órdenes (Total 30 - con fechas variadas y diferentes status)
+INSERT INTO ordenes (usuario_id, total, status, created_at) VALUES
+    -- Ada Lovelace - Cliente VIP (365 días)
+    (1, 1389.97, 'entregado', NOW() - INTERVAL '360 days'),
+    (1, 399.99, 'entregado', NOW() - INTERVAL '300 days'),
+    (1, 89.99, 'entregado', NOW() - INTERVAL '240 days'),
+    (1, 1299.99, 'entregado', NOW() - INTERVAL '180 days'),
+    (1, 249.99, 'entregado', NOW() - INTERVAL '120 days'),
+    
+    -- Alan Turing - Cliente activo
+    (2, 69.98, 'entregado', NOW() - INTERVAL '310 days'),
+    (2, 159.98, 'entregado', NOW() - INTERVAL '200 days'),
+    (2, 89.99, 'entregado', NOW() - INTERVAL '100 days'),
+    
+    -- Grace Hopper - Con cancelaciones
+    (3, 284.98, 'entregado', NOW() - INTERVAL '270 days'),
+    (3, 150.00, 'cancelado', NOW() - INTERVAL '200 days'),
+    (3, 99.99, 'cancelado', NOW() - INTERVAL '150 days'),
+    
+    -- Linus Torvalds
+    (4, 99.98, 'entregado', NOW() - INTERVAL '240 days'),
+    (4, 1299.99, 'entregado', NOW() - INTERVAL '100 days'),
+    
+    -- Margaret Hamilton
+    (5, 1299.99, 'entregado', NOW() - INTERVAL '190 days'),
+    (5, 249.99, 'entregado', NOW() - INTERVAL '80 days'),
+    
+    -- Donald Knuth
+    (6, 399.99, 'entregado', NOW() - INTERVAL '170 days'),
+    
+    -- Tesla
+    (7, 104.99, 'entregado', NOW() - INTERVAL '140 days'),
+    (7, 200.00, 'entregado', NOW() - INTERVAL '60 days'),
+    
+    -- Marie Curie
+    (8, 28.00, 'entregado', NOW() - INTERVAL '115 days'),
+    
+    -- Einstein
+    (9, 67.50, 'entregado', NOW() - INTERVAL '85 days'),
+    (9, 110.00, 'entregado', NOW() - INTERVAL '30 days'),
+    
+    -- Newton - Con cancelación reciente
+    (10, 129.98, 'cancelado', NOW() - INTERVAL '55 days'),
+    
+    -- Galileo
+    (11, 419.98, 'entregado', NOW() - INTERVAL '40 days'),
+    
+    -- Hawking
+    (12, 1299.99, 'entregado', NOW() - INTERVAL '25 days'),
+    
+    -- Darwin
+    (14, 89.98, 'entregado', NOW() - INTERVAL '15 days'),
+    
+    -- Tim Berners-Lee - Cliente reciente
+    (19, 1389.98, 'entregado', NOW() - INTERVAL '2 days'),
+    
+    -- Usuarios inactivos (última compra hace 200+ días)
+    (23, 150.00, 'entregado', NOW() - INTERVAL '195 days'),
+    (24, 200.00, 'entregado', NOW() - INTERVAL '245 days'),
+    (25, 100.00, 'entregado', NOW() - INTERVAL '295 days');
 
--- Detalle de órdenes (Total 45+)
+-- Detalle de órdenes (correspondientes a las órdenes de arriba)
 INSERT INTO orden_detalles (orden_id, producto_id, cantidad, precio_unitario) VALUES
-    -- Originales (1-6)
+    -- Orden 1 (Ada - día 360)
     (1, 1, 1, 1299.99), (1, 2, 1, 29.99), (1, 3, 1, 89.99),
-    (2, 6, 2, 19.99), (2, 5, 1, 59.99),
-    (3, 12, 1, 249.99), (3, 11, 1, 34.99),
-    (4, 7, 1, 49.99), (4, 8, 1, 39.99),
-    (5, 1, 1, 1299.99),
-    (6, 4, 1, 399.99),
+    -- Orden 2 (Ada - día 300)
+    (2, 4, 1, 399.99),
+    -- Orden 3 (Ada - día 240)
+    (3, 3, 1, 89.99),
+    -- Orden 4 (Ada - día 180)
+    (4, 1, 1, 1299.99),
+    -- Orden 5 (Ada - día 120)
+    (5, 12, 1, 249.99),
     
-    -- Orden 7 (Tesla - Herramientas)
-    (7, 33, 1, 85.00), -- Taladro
-    (7, 34, 1, 19.99), -- Destornilladores
+    -- Orden 6-8 (Alan)
+    (6, 6, 2, 19.99), (6, 5, 1, 29.99),
+    (7, 7, 2, 49.99), (7, 8, 1, 39.99),
+    (8, 3, 1, 89.99),
     
-    -- Orden 8 (Curie)
-    (8, 25, 1, 28.00), -- Serum
+    -- Orden 9-11 (Grace - con cancelaciones)
+    (9, 12, 1, 249.99), (9, 11, 1, 34.99),
+    (10, 1, 1, 150.00),
+    (11, 7, 2, 49.99),
     
-    -- Orden 9 (Einstein)
-    (9, 19, 1, 45.00), -- Clean Code
-    (9, 21, 1, 22.50), -- Quijote
+    -- Orden 12-13 (Linus)
+    (12, 7, 1, 49.99), (12, 8, 1, 39.99),
+    (13, 1, 1, 1299.99),
     
-    -- Orden 10 (Newton)
-    (10, 22, 1, 59.99), -- Bloques
-    (10, 16, 2, 25.00), -- 2 Balones
-    (10, 10, 1, 14.99), -- Gorra
+    -- Orden 14-15 (Margaret)
+    (14, 1, 1, 1299.99),
+    (15, 12, 1, 249.99),
     
-    -- Orden 11 (Galileo)
-    (11, 4, 1, 399.99), -- Monitor
-    (11, 20, 1, 15.99), -- Dune
+    -- Orden 16 (Donald)
+    (16, 4, 1, 399.99),
     
-    -- Orden 12 (Hawking)
-    (12, 1, 1, 1299.99), -- Laptop
+    -- Orden 17-18 (Tesla)
+    (17, 33, 1, 85.00), (17, 34, 1, 19.99),
+    (18, 1, 1, 200.00),
     
-    -- Orden 13 (Rosalind)
-    (13, 33, 1, 85.00), -- Taladro
+    -- Orden 19 (Marie)
+    (19, 25, 1, 28.00),
     
-    -- Orden 14 (Darwin - Naturaleza)
-    (14, 28, 1, 49.99), -- Cama perro
-    (14, 29, 1, 39.99), -- Rascador gato
+    -- Orden 20-21 (Einstein)
+    (20, 19, 1, 45.00), (20, 21, 1, 22.50),
+    (21, 30, 1, 110.00),
     
-    -- Orden 15 (Bohr)
-    (15, 32, 1, 59.99), -- Juego RPG
+    -- Orden 22 (Newton - cancelada)
+    (22, 22, 1, 59.99), (22, 16, 2, 25.00), (22, 10, 1, 14.99),
     
-    -- Orden 16 (Schrödinger - Gato)
-    (16, 28, 1, 49.99), -- Cama perro (para el gato)
+    -- Orden 23 (Galileo)
+    (23, 4, 1, 399.99), (23, 20, 1, 15.99),
     
-    -- Orden 17 (Feynman - Bongos/Musica)
-    (17, 30, 1, 110.00), -- Guitarra
-    (17, 31, 1, 9.99),   -- Afinador
+    -- Orden 24 (Hawking)
+    (24, 1, 1, 1299.99),
     
-    -- Orden 18 (Katherine)
-    (18, 35, 2, 6.50), -- Papel (Calculos)
+    -- Orden 25 (Darwin)
+    (25, 28, 1, 49.99), (25, 29, 1, 39.99),
     
-    -- Orden 19 (Tim BL)
-    (19, 1, 1, 1299.99), -- Laptop
-    (19, 3, 1, 89.99),   -- Teclado
+    -- Orden 26 (Tim Berners)
+    (26, 1, 1, 1299.99), (26, 3, 1, 89.99),
     
-    -- Orden 20 (Wozniak)
-    (20, 3, 1, 89.99),   -- Teclado
-    (20, 2, 2, 29.99),   -- 2 Mouses
-    (20, 34, 1, 19.99),  -- Destornilladores
-    (20, 5, 1, 59.99),   -- Webcam
-    
-    -- Orden 21 (Hedy)
-    (21, 36, 1, 55.00), -- Trituradora
-    
-    -- Orden 22 (Dorothy)
-    (22, 19, 1, 45.00), -- Libro
-    (22, 20, 1, 15.99); -- Libro
-
--- ============================================
--- 4. EDGE CASES (para versión 3 horas)
--- ============================================
-
--- Caso: String largo pero válido
-INSERT INTO usuarios (email, nombre, password_hash) VALUES
-    ('usuario.con.email.muy.largo.pero.valido@subdominio.empresa.ejemplo.com', 
-     'Usuario Con Nombre Extremadamente Largo Para Probar Límites', 
-     'hash_muy_largo_12345678901234567890');
-
--- Caso: Valores en el límite
-INSERT INTO productos (codigo, nombre, precio, stock, categoria_id) VALUES
-    ('EDGE-001', 'Producto Gratuito', 0.00, 0, 1);  -- Precio y stock en 0
-
--- ============================================
--- FIN DEL SEED
--- ============================================
--- Para ejecutar: \i db/seed.sql
+    -- Órdenes inactivos
+    (27, 7, 3, 49.99),
+    (28, 6, 10, 19.99),
+    (29, 11, 4, 24.99);
