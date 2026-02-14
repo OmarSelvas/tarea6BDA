@@ -24,6 +24,8 @@ Este proyecto implementa un sistema de reportes para una tienda en línea (e-com
 ## Despliegue Rápido
 ```bash
 git clone https://github.com/OmarSelvas/tarea6BDA.git
+crear un archivo .env y colocar el ejemplo de .env.example con tus propias variables
+
 # Levantar todo el entorno
 docker compose up --build
 
