@@ -59,7 +59,7 @@ export default function Dashboard() {
         </div>
 
         <footer className="mt-16 text-center text-gray-500 text-sm">
-          <p>Desarrollado con Next.js 15 + PostgreSQL + Docker</p>
+          <p>Omar Selvas 243706 | Up chis</p>
         </footer>
       </div>
     </main>
